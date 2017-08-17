@@ -7,6 +7,7 @@ import { default as Web3 } from 'web3'
 // IPFS STUFF
 
 import ipfsAPI from 'ipfs-api'
+
 let IPFS_CLIENT = null
 let DEFAULT_IPFS_GATEWAY_ADDR = 'http://localhost:8080'
 let FILES = {}
@@ -26,7 +27,7 @@ function Upload (reader, filename) {
     .then((response) => {
       console.log(response)
       ipfsId = response[0].hash
-      FILES[ipfsId] = filename
+      FILES[ipfsId] = { 'name': filename, 'size': response[0].size }
       console.log(ipfsId)
     }).catch((err) => {
       console.error(err)
@@ -47,26 +48,27 @@ function BuildHashStructure (previousHash, filesHashes) {
 
   let allTheLinks = []
 
-  if (previousHash.length >= 0) {
+  if (previousHash.length > 0) {
     allTheLinks.push(
-      [ { 'Name':'previousHash', 'Hash':previousHash } ]
+      { 'Name':'previousHash', 'Hash':previousHash, 'Size': 60 }
     )
   }
 
   for (let k in filesHashes) {
     allTheLinks.push(
-      [ { 'Name':filesHashes[k], 'Hash': k } ]
+      { 'Name':filesHashes[k]['name'], 'Hash': k, 'Size': filesHashes[k]['size'] }
     )
   }
 
-  let data = {
-    'Links': allTheLinks,
-    'Data': ''
-  }
+  let data = {}
+  data.Links = allTheLinks
+  data.Data = '\u0008\u0001'
+
+  console.log(data)
 
   IPFS_CLIENT.object.put(data)
     .then( (response) => {
-      console.log(response)
+      console.log(response.toJSON())
     }).catch( (err) => {
       console.log('oops')
       console.log(err)
