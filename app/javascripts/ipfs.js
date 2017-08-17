@@ -3,7 +3,7 @@ import ipfsAPI from 'ipfs-api'
 let IPFS_CLIENT = null
 let DEFAULT_IPFS_GATEWAY_ADDR = 'http://localhost:8080/'
 
-export function SetupIPFSAPI(...args) {
+function SetupIPFSAPI(...args) {
   IPFS_CLIENT = ipfsAPI(...args)
   return IPFS_CLIENT
 }
@@ -14,7 +14,8 @@ export function UploadPath(localPath, previous_hash) {
   return IPFS_CLIENT.util.addFromFs(filePath, options)
 }
 
-export function Download(hash, outputPath) {
+
+export function Download(hash) {
   // Fuck that, we can use the public gateways
   // if(IPFS_CLIENT == null) { SetupIPFSAPI() }
   // const options = { recursive: true }

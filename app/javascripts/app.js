@@ -5,11 +5,47 @@ import "../stylesheets/app.css";
 import { default as Web3} from 'web3';
 import { default as contract } from 'truffle-contract'
 
-// Import our contract artifacts and turn them into usable abstractions.
-import metacoin_artifacts from '../../build/contracts/MetaCoin.json'
+// IPFS STUFF
 
-// MetaCoin is our usable abstraction, which we'll use through the code below.
-var MetaCoin = contract(metacoin_artifacts);
+import ipfsAPI from 'ipfs-api'
+let IPFS_CLIENT = null
+let DEFAULT_IPFS_GATEWAY_ADDR = 'http://localhost:8080'
+
+function SetupIPFSAPI(...args) {
+  IPFS_CLIENT = ipfsAPI(...args)
+  return IPFS_CLIENT
+}
+
+function Upload(reader){
+  if(IPFS_CLIENT == null) { SetupIPFSAPI() }
+  let ipfsId
+  const buffer = Buffer.from(reader.result)
+  IPFS_CLIENT.add(buffer)
+  .then((response) => {
+    console.log(response)
+    ipfsId = response[0].hash
+    console.log(ipfsId)
+  }).catch((err) => {
+    console.error(err)
+  })
+}
+
+function UploadPath(localPath, previous_hash) {
+  if(IPFS_CLIENT == null) { SetupIPFSAPI() }
+  const options = { recursive: true }
+  return IPFS_CLIENT.util.addFromFs(filePath, options)
+}
+
+
+function Download(hash) {
+  // Fuck that, we can use the public gateways
+  // if(IPFS_CLIENT == null) { SetupIPFSAPI() }
+  // const options = { recursive: true }
+  // consider this: https://www.npmjs.com/package/in-browser-download
+  let win = window.open(DEFAULT_IPFS_GATEWAY_ADDR + '/ipfs/' + hash, '_blank')
+  win.focus()
+}
+
 
 // The following code is simple to show off interacting with your contracts.
 // As your needs grow you will likely need to change its form and structure.
@@ -20,9 +56,6 @@ var account;
 window.App = {
   start: function() {
     var self = this;
-
-    // Bootstrap the MetaCoin abstraction for Use.
-    MetaCoin.setProvider(web3.currentProvider);
 
     // Get the initial account balance so it can be displayed.
     web3.eth.getAccounts(function(err, accs) {
@@ -38,52 +71,25 @@ window.App = {
 
       accounts = accs;
       account = accounts[0];
-
-      self.refreshBalance();
     });
   },
 
-  setStatus: function(message) {
-    var status = document.getElementById("status");
-    status.innerHTML = message;
+  uploadFile: function() {
+    let uploadForm = document.getElementById("uploadFies")
+    console.log(uploadForm)
+    let file = uploadForm.files[0]
+    let reader = new window.FileReader()
+    reader.onloadend = () => Upload(reader)
+    reader.readAsArrayBuffer(file)
   },
 
-  refreshBalance: function() {
-    var self = this;
-
-    var meta;
-    MetaCoin.deployed().then(function(instance) {
-      meta = instance;
-      return meta.getBalance.call(account, {from: account});
-    }).then(function(value) {
-      var balance_element = document.getElementById("balance");
-      balance_element.innerHTML = value.valueOf();
-    }).catch(function(e) {
-      console.log(e);
-      self.setStatus("Error getting balance; see log.");
-    });
+  downloadFile: function() {
+    let hashForm = document.getElementById("hash")
+    console.log(hashForm)
+    if(hashForm.value.length > 0)
+      Download(hashForm.value)
   },
 
-  sendCoin: function() {
-    var self = this;
-
-    var amount = parseInt(document.getElementById("amount").value);
-    var receiver = document.getElementById("receiver").value;
-
-    this.setStatus("Initiating transaction... (please wait)");
-
-    var meta;
-    MetaCoin.deployed().then(function(instance) {
-      meta = instance;
-      return meta.sendCoin(receiver, amount, {from: account});
-    }).then(function() {
-      self.setStatus("Transaction complete!");
-      self.refreshBalance();
-    }).catch(function(e) {
-      console.log(e);
-      self.setStatus("Error sending coin; see log.");
-    });
-  }
 };
 
 window.addEventListener('load', function() {
