@@ -10,13 +10,15 @@ import ipfsAPI from 'ipfs-api'
 let IPFS_CLIENT = null
 let DEFAULT_IPFS_GATEWAY_ADDR = 'http://localhost:8080'
 let FILES = {}
+window.IPFS_CLIENT = IPFS_CLIENT
 
 function SetupIPFSAPI (...args) {
   IPFS_CLIENT = ipfsAPI(...args)
+  window.IPFS_CLIENT = IPFS_CLIENT
   return IPFS_CLIENT
 }
 
-function Upload (reader, filename){
+function Upload (reader, filename) {
   if (IPFS_CLIENT == null) SetupIPFSAPI()
   let ipfsId
   const buffer = Buffer.from(reader.result)
@@ -38,6 +40,38 @@ function Download (hash) {
   // consider this: https://www.npmjs.com/package/in-browser-download
   let win = window.open(DEFAULT_IPFS_GATEWAY_ADDR + '/ipfs/' + hash, '_blank')
   win.focus()
+}
+
+function BuildHashStructure (previousHash, filesHashes) {
+  if (IPFS_CLIENT == null) SetupIPFSAPI()
+
+  let allTheLinks = []
+
+  if (previousHash.length >= 0) {
+    allTheLinks.push(
+      [ { 'Name':'previousHash', 'Hash':previousHash } ]
+    )
+  }
+
+  for (let k in filesHashes) {
+    allTheLinks.push(
+      [ { 'Name':filesHashes[k], 'Hash': k } ]
+    )
+  }
+
+  let data = {
+    'Links': allTheLinks,
+    'Data': ''
+  }
+
+  IPFS_CLIENT.object.put(data)
+    .then( (response) => {
+      console.log(response)
+    }).catch( (err) => {
+      console.log('oops')
+      console.log(err)
+    })
+  return
 }
 
 // The following code is simple to show off interacting with your contracts.
@@ -86,6 +120,11 @@ window.App = {
     let hashForm = document.getElementById('hash')
     console.log(hashForm)
     if (hashForm.value.length > 0) Download(hashForm.value)
+  },
+
+  publishChanges: function () {
+    let hashForm = document.getElementById('hash')
+    BuildHashStructure(hashForm.value, FILES)
   }
 
 }
