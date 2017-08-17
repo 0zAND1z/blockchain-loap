@@ -8,6 +8,10 @@ import ipfsAPI from 'ipfs-api'
 let IPFS_CLIENT = null
 let DEFAULT_IPFS_GATEWAY_ADDR = 'http://localhost:8080'
 let FILES = {}
+
+const PREVIOUS_HASH_PARAMETER = "Previous Version"
+const MOTHER_HASH_PARAMETER = "Original Data"
+
 window.IPFS_CLIENT = IPFS_CLIENT
 
 function SetupIPFSAPI (...args) {
@@ -40,14 +44,20 @@ function Download (hash) {
   win.focus()
 }
 
-function BuildHashStructure (previousHash, filesHashes) {
+function BuildHashStructure (previousHash, motherHash, filesHashes) {
   if (IPFS_CLIENT == null) SetupIPFSAPI()
 
   let allTheLinks = []
 
   if (previousHash.length > 0) {
     allTheLinks.push(
-      { 'Name':'Previous Version', 'Hash':previousHash, 'Size': 60 }
+      { 'Name':PREVIOUS_HASH_PARAMETER, 'Hash':previousHash, 'Size': 45 }
+    )
+  }
+
+  if (motherHash.length > 0) {
+    allTheLinks.push(
+      { 'Name':MOTHER_HASH_PARAMETER, 'Hash': motherHash, 'Size': 42 }
     )
   }
 
@@ -66,6 +76,7 @@ function BuildHashStructure (previousHash, filesHashes) {
   IPFS_CLIENT.object.put(data)
     .then( (response) => {
       console.log(response.toJSON())
+
     }).catch( (err) => {
       console.log('oops')
       console.log(err)
@@ -96,6 +107,23 @@ window.App = {
 
       accounts = accs
       account = accounts[0]
+      web3.eth.defaultAccount = account
+      if (IPFS_CLIENT == null) SetupIPFSAPI()
+    })
+  },
+
+  updateBlockchainHash: function () {
+    let transaction = {
+      to: "0x2c41f0a7aDfa683d3D3BBA4DAFd5539Ca34F8961",
+      data: 'Mother!'
+    }
+    web3.eth.sendTransaction(transaction, (err, out) => {
+      // We got a transaction, if no error
+      if (err != null) {
+        console.error(err)
+      }
+
+      console.log(out) //transaction published
     })
   },
 
@@ -122,10 +150,31 @@ window.App = {
   },
 
   publishChanges: function () {
-    let hashForm = document.getElementById('hash')
-    BuildHashStructure(hashForm.value, FILES)
-  }
 
+    let hashForm = document.getElementById('hash')
+    if (hashForm.value.length == 0) {
+      return BuildHashStructure('', '', FILES)
+    }
+    // Extract the Mother hash
+    IPFS_CLIENT.object.get(hashForm.value)
+    .then((x) => {
+      let previousObject = x.toJSON()
+      let motherHash = ''
+
+      for (let k in previousObject.links) {
+        let fileData = previousObject[k]
+        if (!fileData) continue
+        if (fileData.name === MOTHER_HASH_PARAMETER) {
+          motherHash = fileData.name
+          break
+        }
+      }
+
+      // In case there is no mother, the previous hash is used as mother
+      if (motherHash === '') motherHash = hashForm.value
+      BuildHashStructure(hashForm.value, motherHash, FILES)
+    })
+  }
 }
 
 window.addEventListener('load', function () {
