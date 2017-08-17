@@ -1,6 +1,3 @@
-// Import the page's CSS. Webpack will know what to do with it.
-import '../stylesheets/app.css'
-
 // Import libraries we need.
 import { default as Web3 } from 'web3'
 
@@ -50,7 +47,7 @@ function BuildHashStructure (previousHash, filesHashes) {
 
   if (previousHash.length > 0) {
     allTheLinks.push(
-      { 'Name':'previousHash', 'Hash':previousHash, 'Size': 60 }
+      { 'Name':'Previous Version', 'Hash':previousHash, 'Size': 60 }
     )
   }
 
