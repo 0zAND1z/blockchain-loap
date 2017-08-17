@@ -4,6 +4,7 @@ import { default as Web3 } from 'web3'
 // IPFS STUFF
 
 import ipfsAPI from 'ipfs-api'
+import bs58 from 'bs58'
 
 let IPFS_CLIENT = null
 let DEFAULT_IPFS_GATEWAY_ADDR = 'http://localhost:8080'
@@ -42,6 +43,16 @@ function Download (hash) {
   win.focus()
 }
 
+// From: https://www.reddit.com/r/ethdev/comments/6lbmhy/a_practical_guide_to_cheap_ipfs_hash_storage_in/
+function FromIPFSHash (hash) {
+  const bytes = bs58.decode(hash)
+  const multiHashId = 2
+  // remove the multihash hash id
+  return bytes.slice(multiHashId, bytes.length)
+};
+
+window.FromIPFSHash = FromIPFSHash
+
 // The following code is simple to show off interacting with your contracts.
 // As your needs grow you will likely need to change its form and structure.
 // For application bootstrapping, check out window.addEventListener below.
@@ -74,7 +85,7 @@ window.App = {
     let hashForm = document.getElementById('hash')
 
     let transaction = {
-      to: "0x2c41f0a7aDfa683d3D3BBA4DAFd5539Ca34F8961",
+      to: '0x2c41f0a7aDfa683d3D3BBA4DAFd5539Ca34F8961', // generate the hash from the Mother Hash
       data: hashForm.value
     }
     web3.eth.sendTransaction(transaction, (err, out) => {
@@ -112,7 +123,7 @@ window.App = {
 
     let data = {}
     data.Links = allTheLinks
-    data.Data = '\u0008\u0001'
+    data.Data = '\u0008\u0001' // Dir
 
     let self = this
     IPFS_CLIENT.object.put(data)
@@ -160,9 +171,10 @@ window.App = {
   publishChanges: function () {
 
     let hashForm = document.getElementById('hash')
-    if (hashForm.value.length == 0) {
+    if (hashForm.value.length === 0) {
       return this.BuildHashStructure('', '', FILES)
     }
+
     // Extract the Mother hash
     IPFS_CLIENT.object.get(hashForm.value)
     .then((x) => {
