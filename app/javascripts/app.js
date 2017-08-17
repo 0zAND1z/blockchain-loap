@@ -26,10 +26,8 @@ function Upload (reader, filename) {
   const buffer = Buffer.from(reader.result)
   return IPFS_CLIENT.add(buffer)
     .then((response) => {
-      console.log(response)
       ipfsId = response[0].hash
       FILES[ipfsId] = { 'name': filename, 'size': response[0].size }
-      console.log(ipfsId)
     }).catch((err) => {
       console.error(err)
     })
@@ -75,8 +73,9 @@ function BuildHashStructure (previousHash, motherHash, filesHashes) {
 
   IPFS_CLIENT.object.put(data)
     .then( (response) => {
-      console.log(response.toJSON())
-
+      let objectCreated = response.toJSON()
+      let hashForm = document.getElementById('hash')
+      hashForm.value = objectCreated.multihash
     }).catch( (err) => {
       console.log('oops')
       console.log(err)
@@ -115,7 +114,7 @@ window.App = {
   updateBlockchainHash: function () {
     let transaction = {
       to: "0x2c41f0a7aDfa683d3D3BBA4DAFd5539Ca34F8961",
-      data: 'Mother!'
+      data: 'New hash here'
     }
     web3.eth.sendTransaction(transaction, (err, out) => {
       // We got a transaction, if no error
@@ -133,11 +132,20 @@ window.App = {
 
     console.log(uploadForm)
     let file = uploadForm.files[0]
-    console.log(file.name)
     let reader = new window.FileReader()
     reader.onloadend = () => {
       Upload(reader, file.name).then(() => {
         document.getElementById('fileList').innerText = JSON.stringify(FILES)
+        let fileTable = document.getElementById('fileTable')
+
+        var tr = document.createElement('tr')
+        var tdElement = document.createElement('td')
+        tdElement.innerHTML = file.name
+        tr.appendChild(tdElement)
+        fileTable.appendChild(tr)
+
+        uploadForm.value = '' //clear file form
+
       })
     }
     reader.readAsArrayBuffer(file)
@@ -145,7 +153,6 @@ window.App = {
 
   downloadFile: function () {
     let hashForm = document.getElementById('hash')
-    console.log(hashForm)
     if (hashForm.value.length > 0) Download(hashForm.value)
   },
 

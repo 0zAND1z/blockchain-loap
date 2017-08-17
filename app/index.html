@@ -1,40 +1,78 @@
 <!DOCTYPE html>
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
-    <!-- Optional theme -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="/app/stylesheets/app.css" media="screen" />
+  <!--cant get the css connected-->
 
-    <!-- Latest compiled and minified JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+  <!-- Optional theme -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
 
-    <script src="./app.js"></script>
-  </head>
-  <body>
-    <div class="container">
-      <form>
-        <div class="form-group">
-          <label for="hash">Previous Version Hash:</label>
-          <input type="text" class="form-control" id="hash" placeholder="e.g., 95"></input>
+  <!-- Latest compiled and minified JavaScript -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+  <script src="./app.js"></script>
+</head>
+
+<body>
+  <div class="container">
+    <h1 class="Header" style="text-align:center; margin-bottom:40px">Mapping of Documents</h1>
+
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="align-center">
+          <!--does not work?-->
+          <legend>1. Add your changes</legend>
+          <div class="form-group">
+            <div class="col-md-8">
+              <div class="form-group">
+                <input type="file" id="uploadFies">
+              </div>
+            </div>
+            <div class="col-md-4">
+                <a class="btn btn-success" onclick="App.uploadFile()">Add the file <span class="glyphicon glyphicon-plus" aria-hidden="true"></span></a>
+            </div>
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>File</th>
+                </tr>
+              </thead>
+              <tbody id="fileTable">
+
+              </tbody>
+            </table>
+          </div>
+
         </div>
-
-        <div class="form-group">
-            <input type="file" id="uploadFies">
+      </div>
+      <div class="col-lg-6">
+        <div class="align-center">
+          <!--does not work?-->
+          <legend>2.Submit the changes</legend>
+          <h4 class="text-bold">Submit the changes</h4>
+          <form>
+            <div class="form-group">
+              <label for="hash">Previous Version Hash:</label>
+              <input type="text" class="form-control" id="hash" placeholder="..."></input>
+            </div>
+            <a class="btn btn-default" onclick="App.publishChanges()">Publish Changes <span class="glyphicon glyphicon-cloud-upload" aria-hidden="true"></span></a>
+            <a class="btn btn-info" onclick="App.downloadFile()">Explore <span class="glyphicon glyphicon-search" aria-hidden="true"></span></a>
+            <br>
+            <br>
+            <pre><code id="fileList"></code></pre>
+          </form>
         </div>
+      </div>
 
-        <a class="btn btn-default" onclick="App.uploadFile()">Add a new file</a>
-
-        <a class="btn btn-default" onclick="App.downloadFile()">Download</a>
-        <a class="btn btn-default" onclick="App.publishChanges()">Upload all changes</a>
-
-        <pre><code id="fileList"></code></pre>
-      </form>
     </div>
-  </body>
+  </div>
+</body>
+
 </html>
