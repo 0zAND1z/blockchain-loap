@@ -87,8 +87,7 @@ window.App = {
     let hashForm = document.getElementById('hash')
 
     let transaction = {
-      // to: EthFromIPFSHash(motherHash), // generate the hash from the Mother Hash
-      to: "0x59948439065f29619ef41280cbb932be52c56d99",
+      to: EthFromIPFSHash(motherHash), // generate the hash from the Mother Hash
       data: hashForm.value
     }
     web3.eth.sendTransaction(transaction, (err, out) => {
