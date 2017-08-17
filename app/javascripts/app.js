@@ -44,14 +44,16 @@ function Download (hash) {
 }
 
 // From: https://www.reddit.com/r/ethdev/comments/6lbmhy/a_practical_guide_to_cheap_ipfs_hash_storage_in/
-function FromIPFSHash (hash) {
+function EthFromIPFSHash (hash) {
   const bytes = bs58.decode(hash)
   const multiHashId = 2
   // remove the multihash hash id
-  return bytes.slice(multiHashId, bytes.length)
+  const b = bytes.slice(multiHashId, bytes.length)
+  const longAddr = '0x' + b.toString('hex')
+  return longAddr.substr(0, 42)
 };
 
-window.FromIPFSHash = FromIPFSHash
+window.EthFromIPFSHash = EthFromIPFSHash
 
 // The following code is simple to show off interacting with your contracts.
 // As your needs grow you will likely need to change its form and structure.
@@ -81,11 +83,12 @@ window.App = {
     })
   },
 
-  updateBlockchainHash: function () {
+  updateBlockchainHash: function (motherHash) {
     let hashForm = document.getElementById('hash')
 
     let transaction = {
-      to: '0x2c41f0a7aDfa683d3D3BBA4DAFd5539Ca34F8961', // generate the hash from the Mother Hash
+      // to: EthFromIPFSHash(motherHash), // generate the hash from the Mother Hash
+      to: "0x59948439065f29619ef41280cbb932be52c56d99",
       data: hashForm.value
     }
     web3.eth.sendTransaction(transaction, (err, out) => {
@@ -131,7 +134,12 @@ window.App = {
         let objectCreated = response.toJSON()
         let hashForm = document.getElementById('hash')
         hashForm.value = objectCreated.multihash
-        self.updateBlockchainHash()
+
+        if (motherHash.length < 0) {
+          motherHash = objectCreated.multihash
+        }
+
+        self.updateBlockchainHash(motherHash)
       }).catch((err) => {
         console.log('oops')
         console.log(err)
@@ -182,7 +190,7 @@ window.App = {
       let motherHash = ''
 
       for (let k in previousObject.links) {
-        let fileData = previousObject[k]
+        let fileData = previousObject.links[k]
         if (!fileData) continue
         if (fileData.name === MOTHER_HASH_PARAMETER) {
           motherHash = fileData.name
