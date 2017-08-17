@@ -42,47 +42,6 @@ function Download (hash) {
   win.focus()
 }
 
-function BuildHashStructure (previousHash, motherHash, filesHashes) {
-  if (IPFS_CLIENT == null) SetupIPFSAPI()
-
-  let allTheLinks = []
-
-  if (previousHash.length > 0) {
-    allTheLinks.push(
-      { 'Name':PREVIOUS_HASH_PARAMETER, 'Hash':previousHash, 'Size': 45 }
-    )
-  }
-
-  if (motherHash.length > 0) {
-    allTheLinks.push(
-      { 'Name':MOTHER_HASH_PARAMETER, 'Hash': motherHash, 'Size': 42 }
-    )
-  }
-
-  for (let k in filesHashes) {
-    allTheLinks.push(
-      { 'Name':filesHashes[k]['name'], 'Hash': k, 'Size': filesHashes[k]['size'] }
-    )
-  }
-
-  let data = {}
-  data.Links = allTheLinks
-  data.Data = '\u0008\u0001'
-
-  console.log(data)
-
-  IPFS_CLIENT.object.put(data)
-    .then( (response) => {
-      let objectCreated = response.toJSON()
-      let hashForm = document.getElementById('hash')
-      hashForm.value = objectCreated.multihash
-    }).catch( (err) => {
-      console.log('oops')
-      console.log(err)
-    })
-  return
-}
-
 // The following code is simple to show off interacting with your contracts.
 // As your needs grow you will likely need to change its form and structure.
 // For application bootstrapping, check out window.addEventListener below.
@@ -92,7 +51,7 @@ let account
 window.App = {
   start: function () {
     // Get the initial account balance so it can be displayed.
-    web3.eth.getAccounts(function(err, accs) {
+    web3.eth.getAccounts(function (err, accs) {
       if (err != null) {
         alert('There was an error fetching your accounts.')
         console.log(err)
@@ -112,9 +71,11 @@ window.App = {
   },
 
   updateBlockchainHash: function () {
+    let hashForm = document.getElementById('hash')
+
     let transaction = {
       to: "0x2c41f0a7aDfa683d3D3BBA4DAFd5539Ca34F8961",
-      data: 'New hash here'
+      data: hashForm.value
     }
     web3.eth.sendTransaction(transaction, (err, out) => {
       // We got a transaction, if no error
@@ -122,8 +83,49 @@ window.App = {
         console.error(err)
       }
 
-      console.log(out) //transaction published
+      console.log(out) // transaction published
     })
+  },
+
+  BuildHashStructure: function (previousHash, motherHash, filesHashes) {
+    if (IPFS_CLIENT == null) SetupIPFSAPI()
+
+    let allTheLinks = []
+
+    if (previousHash.length > 0) {
+      allTheLinks.push(
+        { 'Name':PREVIOUS_HASH_PARAMETER, 'Hash':previousHash, 'Size': 45 }
+      )
+    }
+
+    if (motherHash.length > 0) {
+      allTheLinks.push(
+        { 'Name':MOTHER_HASH_PARAMETER, 'Hash': motherHash, 'Size': 42 }
+      )
+    }
+
+    for (let k in filesHashes) {
+      allTheLinks.push(
+        { 'Name':filesHashes[k]['name'], 'Hash': k, 'Size': filesHashes[k]['size'] }
+      )
+    }
+
+    let data = {}
+    data.Links = allTheLinks
+    data.Data = '\u0008\u0001'
+
+    let self = this
+    IPFS_CLIENT.object.put(data)
+      .then((response) => {
+        let objectCreated = response.toJSON()
+        let hashForm = document.getElementById('hash')
+        hashForm.value = objectCreated.multihash
+        self.updateBlockchainHash()
+      }).catch((err) => {
+        console.log('oops')
+        console.log(err)
+      })
+    return
   },
 
   uploadFile: function () {
@@ -144,8 +146,7 @@ window.App = {
         tr.appendChild(tdElement)
         fileTable.appendChild(tr)
 
-        uploadForm.value = '' //clear file form
-
+        uploadForm.value = '' // clear file form
       })
     }
     reader.readAsArrayBuffer(file)
@@ -160,7 +161,7 @@ window.App = {
 
     let hashForm = document.getElementById('hash')
     if (hashForm.value.length == 0) {
-      return BuildHashStructure('', '', FILES)
+      return this.BuildHashStructure('', '', FILES)
     }
     // Extract the Mother hash
     IPFS_CLIENT.object.get(hashForm.value)
@@ -179,7 +180,7 @@ window.App = {
 
       // In case there is no mother, the previous hash is used as mother
       if (motherHash === '') motherHash = hashForm.value
-      BuildHashStructure(hashForm.value, motherHash, FILES)
+      this.BuildHashStructure(hashForm.value, motherHash, FILES)
     })
   }
 }
