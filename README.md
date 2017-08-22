@@ -17,22 +17,23 @@ a lot of errors may happen, making an invalid end result. Most of those errors
 are caused by Human mistakes or data corruption/inconsistency.
 
 ## Proposal
-We propose a modular solution that can be easily integrate in existing workflows
-to reduce the human error when transfering data and ensure consistency and
+We propose a modular solution that can be integrate in existing workflows to
+reduce the human error when transfering data and ensure consistency and
 immutability over the content that is manipulated in each step of the chain.
 
 The solution is designed so that every time new data is modified, a new
-MarkleDAG is created. This structure includes:
+[MarkleDAG](https://github.com/jbenet/random-ideas/issues/20) is created.
+This structure includes:
 
  * The hash of to **Previous structure/version** (or input of the process)
  * The hash of to the **Original structure/version**
  * All the hash of the files added/modified.
 
-By using the MerkleDAG and the hash as address of immutable content, we can
-navigate between versions and obtain a chain of changes. As a version
-is addressed by a single hash and linked with the other versions, we allow
-auditors to easily identify what was changed in one single step of the chain
-of changes.
+By using the [MarkleDAG](https://github.com/jbenet/random-ideas/issues/20)
+and the hash as address of immutable content, we can navigate between versions
+and obtain a chain of changes. As a version is addressed by a single hash and
+linked with the other versions, we allow auditors to easily identify what was
+changed in one single step of the chain of changes.
 
 By using symmetric cryptography and a PKI to manage authorization, we can easily
 publish in a Blockchain the hashes of the MerkleDAG. The public key used will
@@ -42,15 +43,23 @@ By using a Blockchain that uses hashes of symmetric keys to identify entities,
 we can use the first MerkleDAG hash generated in the chain as a way to track
 statuses and updates of the chain of changes.
 
-## PoC implementation
-The project is using [IPFS](https://ipfs.io/) and
-[Ethereum](https://ethereum.org) blockchain to provide a decentralized solution
-for multiple parties to: distribute, obtain an validate the changes applied to
-files and documents.
+Futher in the idea developed, each changes in the chain could be replaced by an
+automatic and non-human process, that will deterministically generate the
+changes from one version to the next one. This allows auditors to just validate
+the steps by re-running them and compare the results' hashes with the one
+published in the blockchain.
 
+## PoC implementation
 Using a blockchain to store also the data is too expensive in terms of fees per
 transaction, as existing database and cloud storage solution are not providing
-an immutable, content-addressed, decentralised storage solution.
+an immutable, content-addressed, decentralised storage solution (ex: _404_ of
+any URL)
+
+For this reasons the project is using [IPFS](https://ipfs.io/) and
+[Ethereum](https://ethereum.org) blockchain to provide a decentralized solution
+for multiple parties to: distribute, mantain, obtain an validate the changes
+applied to files and documents, and as well the MerkleDAG generated for each
+chain of changes.
 
 ## How to run the PoC
 
