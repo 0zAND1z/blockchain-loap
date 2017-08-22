@@ -62,13 +62,24 @@ applied to files and documents, and as well the MerkleDAG generated for each
 chain of changes.
 
 ## How to run the PoC
+The PoC requires the following software installed and running in background:
 
-* `npm install` or `yarn`
-* `npm run dev`
+ * [IPFS](https://ipfs.io/) running as a daemon locally
+ * [MetaMask](https://metamask.io/) or [Mist](https://github.com/ethereum/mist)
 
+To run the PoC you need to install the dependencies required: run `npm install`
+or `yarn` to install everything needed.
+
+Once ready, you can start the development server locally and then browse the
+URL provided (usually `http://localhost:8080`). To do so run: `npm run dev` or
+`yarn run dev`.
+
+If you are using MetaMask, remember to use the TestNet. You can also use
+[ethereumjs-testrpc](https://github.com/ethereumjs/testrpc) to import accounts
+and to use it locally.
 
 ## Contacts and Contributors
-The main partecipant of hackathon that developed this idea are:
+The partecipant of hackathon that created and developed this project are:
 
 * [Stefan Seebacher](https://www.linkedin.com/in/stefan-seebacher/)
 * [Eric Holst](https://www.linkedin.com/in/eric-holst-36343824/)
