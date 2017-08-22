@@ -1,4 +1,8 @@
 # LOAP - A Versioned Auditing tool based on the MerkleDAG and a Blockchain
+
+![LOAP](.readme/loap.gif)
+
+
 The goal of our project is to combine two main technologies and provide a
 versioned structure to publish files for later auditing.
 
@@ -24,10 +28,11 @@ MarkleDAG is created. This structure includes:
  * The hash of to the **Original structure/version**
  * All the hash of the files added/modified.
 
-By using the hash of the structure as address of immutable content, we can
-easily navigate between versions and obtain the chain of changes. As a version
-is addressed by a single hash, we allow auditors to easily identify what was
-changed in one single step of the chain of changes.
+By using the MerkleDAG and the hash as address of immutable content, we can
+navigate between versions and obtain a chain of changes. As a version
+is addressed by a single hash and linked with the other versions, we allow
+auditors to easily identify what was changed in one single step of the chain
+of changes.
 
 By using symmetric cryptography and a PKI to manage authorization, we can easily
 publish in a Blockchain the hashes of the MerkleDAG. The public key used will
@@ -38,9 +43,10 @@ we can use the first MerkleDAG hash generated in the chain as a way to track
 statuses and updates of the chain of changes.
 
 ## PoC implementation
-The project is using [IPFS](https://ipfs.io/) and [Ethereum](https://ethereum.org)
-blockchain to provide a decentralized solution for multiple parties to:
-distribute, obtain an validate the changes applied to files and documents.
+The project is using [IPFS](https://ipfs.io/) and
+[Ethereum](https://ethereum.org) blockchain to provide a decentralized solution
+for multiple parties to: distribute, obtain an validate the changes applied to
+files and documents.
 
 Using a blockchain to store also the data is too expensive in terms of fees per
 transaction, as existing database and cloud storage solution are not providing
